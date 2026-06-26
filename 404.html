@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SYSTEM ERROR // 系统故障</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --neon-cyan: #00f5ff;
+            --neon-pink: #ff00ff;
+            --neon-purple: #b347d9;
+            --dark-bg: #0a0a0f;
+            --darker-bg: #050508;
+            --grid-color: rgba(0, 245, 255, 0.1);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: var(--dark-bg);
+            color: var(--neon-cyan);
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* 背景网格 */
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 1;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
+            100% { transform: perspective(500px) rotateX(60deg) translateY(50px); }
+        }
+
+        /* 扫描线效果 */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15),
+                rgba(0, 0, 0, 0.15) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* 主容器 */
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 100%;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 错误代码大标题 */
+        .error-code {
+            font-size: clamp(80px, 20vw, 200px);
+            font-weight: 900;
+            text-align: center;
+            line-height: 1;
+            margin-bottom: 20px;
+            position: relative;
+            text-shadow: 
+                0 0 10px var(--neon-cyan),
+                0 0 20px var(--neon-cyan),
+                0 0 40px var(--neon-cyan),
+                0 0 80px var(--neon-cyan);
+            animation: glitch 2s infinite;
+        }
+
+        .error-code::before,
+        .error-code::after {
+            content: '404';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .error-code::before {
+            color: var(--neon-pink);
+            animation: glitch-1 0.3s infinite;
+            clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
+            transform: translate(-2px, -2px);
+        }
+
+        .error-code::after {
+            color: var(--neon-purple);
+            animation: glitch-2 0.3s infinite;
+            clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
+            transform: translate(2px, 2px);
+        }
+
+        @keyframes glitch {
+            0%, 90%, 100% { transform: translate(0); }
+            92% { transform: translate(-5px, 2px); }
+            94% { transform: translate(5px, -2px); }
+            96% { transform: translate(-3px, 0); }
+        }
+
+        @keyframes glitch-1 {
+            0%, 100% { transform: translate(-2px, -2px); }
+            25% { transform: translate(2px, 0); }
+            50% { transform: translate(-1px, 2px); }
+            75% { transform: translate(1px, -1px); }
+        }
+
+        @keyframes glitch-2 {
+            0%, 100% { transform: translate(2px, 2px); }
+            25% { transform: translate(-2px, 0); }
+            50% { transform: translate(1px, -2px); }
+            75% { transform: translate(-1px, 1px); }
+        }
+
+        /* 状态栏 */
+        .status-bar {
+            width: 100%;
+            max-width: 600px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--neon-cyan);
+            padding: 15px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 245, 255, 0.2), transparent);
+            animation: scan 3s infinite;
+        }
+
+        @keyframes scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .status-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            background: var(--neon-pink);
+            border-radius: 50%;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        /* 进度条 */
+        .progress-container {
+            width: 100%;
+            height: 4px;
+            background: rgba(0, 245, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
+            animation: progress 4s ease-in-out infinite;
+            box-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        @keyframes progress {
+            0% { width: 0%; }
+            50% { width: 70%; }
+            100% { width: 100%; }
+        }
+
+        /* 错误信息 */
+        .error-message {
+            text-align: center;
+            margin-bottom: 40px;
+            max-width: 90%;
+        }
+
+        .error-title {
+            font-size: clamp(18px, 5vw, 28px);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--neon-pink);
+            text-shadow: 0 0 10px var(--neon-pink);
+        }
+
+        .error-desc {
+            font-size: clamp(12px, 3vw, 16px);
+            line-height: 1.8;
+            color: rgba(0, 245, 255, 0.8);
+            opacity: 0;
+            animation: fadeIn 1s ease-out 0.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* 终端输出 */
+        .terminal {
+            width: 100%;
+            max-width: 600px;
+            background: var(--darker-bg);
+            border: 1px solid var(--neon-cyan);
+            padding: 20px;
+            margin-bottom: 30px;
+            font-size: 12px;
+            line-height: 1.6;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .terminal::before {
+            content: '>';
+            position: absolute;
+            left: 10px;
+            color: var(--neon-cyan);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .terminal-content {
+            padding-left: 20px;
+            min-height: 120px;
+        }
+
+        .terminal-line {
+            margin-bottom: 8px;
+            opacity: 0;
+            animation: typeIn 0.3s forwards;
+        }
+
+        .terminal-line:nth-child(1) { animation-delay: 0.5s; }
+        .terminal-line:nth-child(2) { animation-delay: 1s; }
+        .terminal-line:nth-child(3) { animation-delay: 1.5s; }
+        .terminal-line:nth-child(4) { animation-delay: 2s; }
+        .terminal-line:nth-child(5) { animation-delay: 2.5s; }
+
+        @keyframes typeIn {
+            to { opacity: 1; }
+        }
+
+        .error { color: var(--neon-pink); }
+        .warning { color: #ffaa00; }
+        .success { color: #00ff88; }
+
+        /* 按钮组 */
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        @media (min-width: 480px) {
+            .button-group {
+                flex-direction: row;
+                justify-content: center;
+            }
+        }
+
+        .cyber-btn {
+            padding: 15px 30px;
+            background: transparent;
+            border: 2px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .cyber-btn:hover {
+            background: var(--neon-cyan);
+            color: var(--dark-bg);
+            box-shadow: 0 0 20px var(--neon-cyan);
+        }
+
+        .cyber-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .cyber-btn:hover::before {
+            left: 100%;
+        }
+
+        .cyber-btn.secondary {
+            border-color: var(--neon-pink);
+            color: var(--neon-pink);
+        }
+
+        .cyber-btn.secondary:hover {
+            background: var(--neon-pink);
+            color: var(--dark-bg);
+            box-shadow: 0 0 20px var(--neon-pink);
+        }
+
+        /* 装饰元素 */
+        .corner-decoration {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            border: 2px solid var(--neon-cyan);
+            z-index: 5;
+        }
+
+        .corner-decoration.top-left {
+            top: 20px;
+            left: 20px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .corner-decoration.top-right {
+            top: 20px;
+            right: 20px;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .corner-decoration.bottom-left {
+            bottom: 20px;
+            left: 20px;
+            border-right: none;
+            border-top: none;
+        }
+
+        .corner-decoration.bottom-right {
+            bottom: 20px;
+            right: 20px;
+            border-left: none;
+            border-top: none;
+        }
+
+        /* 二进制背景 */
+        .binary-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+            opacity: 0.03;
+            font-size: 14px;
+            line-height: 1.4;
+            word-break: break-all;
+            pointer-events: none;
+        }
+
+        /* 滚动提示 */
+        .scroll-hint {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            color: var(--neon-cyan);
+            opacity: 0.6;
+            animation: bounce 2s infinite;
+            z-index: 10;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-10px); }
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--darker-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--neon-cyan);
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+
+            .corner-decoration {
+                width: 40px;
+                height: 40px;
+            }
+
+            .terminal {
+                padding: 15px;
+                font-size: 11px;
+            }
+
+            .status-text {
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="binary-bg" id="binaryBg"></div>
+    <div class="grid-overlay"></div>
+    <div class="scanlines"></div>
+    <div class="corner-decoration top-left"></div>
+    <div class="corner-decoration top-right"></div>
+    <div class="corner-decoration bottom-left"></div>
+    <div class="corner-decoration bottom-right"></div>
+    <div class="container">
+        <div class="error-code">404</div>
+        <div class="status-bar">
+            <div class="status-text">
+                <div class="status-item">
+                    <div class="status-indicator"></div>
+                    <span>SYSTEM_FAILURE</span>
+                </div>
+                <div class="status-item">
+                    <span>SECTOR: 7G</span>
+                </div>
+                <div class="status-item">
+                    <span>TIME: <span id="clock">00:00:00</span></span>
+                </div>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar"></div>
+            </div>
+        </div>
+        <div class="error-message">
+            <h1 class="error-title">// 连接中断 //</h1>
+            <p class="error-desc">
+                目标数据节点未响应。<br>
+                可能原因：节点已离线、数据包丢失、或访问权限不足。<br>
+                建议操作：返回安全区域或联系系统管理员。
+            </p>
+        </div>
+        <div class="terminal">
+            <div class="terminal-content">
+                <div class="terminal-line">$ ping target_node_404 -c 4</div>
+                <div class="terminal-line error">ERROR: Connection timeout after 3000ms</div>
+                <div class="terminal-line warning">WARNING: Route not found in routing table</div>
+                <div class="terminal-line">$ trace_route --verbose</div>
+                <div class="terminal-line error">FATAL: Packet lost at sector 7G-404</div>
+            </div>
+        </div>
+        <div class="button-group">
+            <a href="/" class="cyber-btn">返回主页</a>
+            <button class="cyber-btn" onclick="if(typeof spaReload==='function')spaReload();else location.reload()">重试连接</button>
+        </div>
+    </div>
+
+    <script>
+        function generateBinary() {
+            const binaryBg = document.getElementById('binaryBg');
+            let binary = '';
+            for (let i = 0; i < 2000; i++) {
+                binary += Math.random() > 0.5 ? '1' : '0';
+                if (i % 50 === 0) binary += ' ';
+            }
+            binaryBg.textContent = binary.repeat(10);
+        }
+        generateBinary();
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('zh-CN', { hour12: false });
+            document.getElementById('clock').textContent = timeStr;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+        function randomGlitch() {
+            const errorCode = document.querySelector('.error-code');
+            if (Math.random() > 0.95) {
+                errorCode.style.transform = `translate(${Math.random() * 10 - 5}px, ${Math.random() * 10 - 5}px)`;
+                setTimeout(() => {
+                    errorCode.style.transform = 'translate(0, 0)';
+                }, 100);
+            }
+        }
+        setInterval(randomGlitch, 2000);
+        window.addEventListener('scroll', () => {
+            const scrollHint = document.querySelector('.scroll-hint');
+            if (window.scrollY > 50) {
+                scrollHint.style.opacity = '0';
+            } else {
+                scrollHint.style.opacity = '0.6';
+            }
+        });
+    </script>
+</body>
+</html>
