@@ -65,7 +65,17 @@ $registrationEnabled = isRegistrationEnabled();
             position: relative;
             background: var(--bg-primary);
             overflow: hidden;
-            aspect-ratio: 16 / 9;
+            max-height: 360px;
+            aspect-ratio: 21 / 9;
+        }
+        @media (max-width: 1024px) {
+            .slideshow-container { max-height: 260px; aspect-ratio: 3 / 1; }
+        }
+        @media (max-width: 768px) {
+            .slideshow-container { max-height: 200px; aspect-ratio: 16 / 7; margin-top: 0; }
+        }
+        @media (max-width: 480px) {
+            .slideshow-container { max-height: 150px; aspect-ratio: 16 / 6; }
         }
         .slideshow {
             position: absolute;
